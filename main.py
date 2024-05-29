@@ -1,16 +1,28 @@
-# This is a sample Python script.
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.storage.memory import MemoryStorage
+import asyncio
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from config import TOKEN
+from keyboard import keyboard
+from user_states import UserStates
+
+storage = MemoryStorage()
+bot = Bot(token=TOKEN)
+dp = Dispatcher(storage=storage)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+@dp.message(CommandStart())
+async def start(message: types.Message, state: FSMContext):
+    await message.answer(f"Привет! я умею следить за Пари", reply_markup=keyboard[UserStates.BASE])
+    await state.set_state(UserStates.BASE)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+if __name__ == "__main__":
+    asyncio.run(main())
